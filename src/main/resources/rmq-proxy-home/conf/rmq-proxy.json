@@ -1,0 +1,4 @@
+{
+  "proxyMode": "local",
+  "grpcServerPort": "8099"
+}
