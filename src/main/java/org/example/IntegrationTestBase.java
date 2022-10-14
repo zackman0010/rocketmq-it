@@ -164,7 +164,7 @@ public class IntegrationTestBase {
         return brokerController;
     }
 
-    public static void createAndStartProxy(BrokerController brokerController) {
+    public static MessagingProcessor createAndStartMessagingProcessor(BrokerController brokerController) {
         try {
             String mockProxyHome = "/mock/rmq/proxy/home";
             URL mockProxyHomeURL = IntegrationTestBase.class.getClassLoader().getResource("rmq-proxy-home");
@@ -187,9 +187,19 @@ public class IntegrationTestBase {
 
             MessagingProcessor messagingProcessor = DefaultMessagingProcessor.createForLocalMode(brokerController);
             messagingProcessor.start();
-            GrpcMessagingApplication grpcMessagingApplication = GrpcMessagingApplication.create(messagingProcessor);
+            return messagingProcessor;
+        } catch (Throwable t) {
+            logger.error("Proxy start failed", t);
+            throw new IllegalStateException("Proxy start failed", t);
+        }
+    }
+
+    public static GrpcMessagingApplication createAndStartProxy(MessagingProcessor messagingProcessor) {
+        try {
+            final GrpcMessagingApplication grpcMessagingApplication = GrpcMessagingApplication.create(messagingProcessor);
             grpcMessagingApplication.start();
             setUpServer(grpcMessagingApplication, ConfigurationManager.getProxyConfig().getGrpcServerPort(), true);
+            return grpcMessagingApplication;
         } catch (Throwable t) {
             logger.error("Proxy start failed", t);
             throw new IllegalStateException("Proxy start failed", t);

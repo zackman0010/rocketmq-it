@@ -3,30 +3,46 @@ package org.example;
 import org.apache.rocketmq.broker.BrokerController;
 import org.apache.rocketmq.common.MQVersion;
 import org.apache.rocketmq.namesrv.NamesrvController;
+import org.apache.rocketmq.proxy.grpc.v2.GrpcMessagingApplication;
+import org.apache.rocketmq.proxy.processor.MessagingProcessor;
 import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 
 public class Main {
-    public static final String nsAddr;
-    public static final String broker1Addr;
-    static final String broker1Name;
-    static final String clusterName;
-    static final NamesrvController namesrvController;
-    static final BrokerController brokerController;
+    public final String nsAddr;
+    public final String broker1Addr;
+    final String broker1Name;
+    final String clusterName;
+    final NamesrvController namesrvController;
+    final BrokerController brokerController;
 
-    static {
+    final MessagingProcessor messagingProcessor;
+
+    final GrpcMessagingApplication grpcMessagingApplication;
+
+    public Main() {
         System.setProperty(
             RemotingCommand.REMOTING_VERSION_KEY, Integer.toString(MQVersion.CURRENT_VERSION));
         namesrvController = IntegrationTestBase.createAndStartNamesrv();
         nsAddr = "localhost:" + namesrvController.getNettyServerConfig().getListenPort();
         brokerController = IntegrationTestBase.createAndStartBroker(nsAddr);
-        IntegrationTestBase.createAndStartProxy(brokerController);
+        messagingProcessor = IntegrationTestBase.createAndStartMessagingProcessor(brokerController);
+        grpcMessagingApplication = IntegrationTestBase.createAndStartProxy(messagingProcessor);
         clusterName = brokerController.getBrokerConfig().getBrokerClusterName();
         broker1Name = brokerController.getBrokerConfig().getBrokerName();
         broker1Addr = "localhost:" + brokerController.getNettyServerConfig().getListenPort();
     }
 
+    public void shutdown() throws Exception {
+        messagingProcessor.shutdown();
+        grpcMessagingApplication.shutdown();
+        brokerController.shutdown();
+        namesrvController.shutdown();
+    }
 
-    public static void main(String[] args) {
-        System.out.println("Hello world!");
+
+    public static void main(String[] args) throws Exception {
+        final Main main = new Main();
+        main.shutdown();
+        System.out.println("done");
     }
 }
