@@ -1,6 +1,7 @@
 package org.example;
 
 import static java.util.Collections.emptyMap;
+import static org.apache.rocketmq.proxy.config.Configuration.CONFIG_PATH_PROPERTY;
 import static org.apache.rocketmq.proxy.config.ConfigurationManager.RMQ_PROXY_HOME;
 
 import apache.rocketmq.v2.MessagingServiceGrpc;
@@ -16,6 +17,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -29,12 +31,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.broker.BrokerController;
 import org.apache.rocketmq.common.BrokerConfig;
 import org.apache.rocketmq.common.namesrv.NamesrvConfig;
 import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.logging.InternalLoggerFactory;
 import org.apache.rocketmq.namesrv.NamesrvController;
+import org.apache.rocketmq.proxy.config.Configuration;
 import org.apache.rocketmq.proxy.config.ConfigurationManager;
 import org.apache.rocketmq.proxy.config.ProxyConfig;
 import org.apache.rocketmq.proxy.grpc.interceptor.ContextInterceptor;
@@ -178,21 +182,23 @@ public class IntegrationTestBase {
             if (mockProxyHomeURL != null) {
                 mockProxyHome = mockProxyHomeURL.toURI().getPath();
             }
-            final String configPath = mockProxyHomeURL.getPath() + "/conf/rmq-proxy.json";
-            final Gson gson = new Gson();
-            Type ProxyType = new TypeToken<ProxyConfig>() {}.getType();
-            JsonReader reader = new JsonReader(new FileReader(configPath));
-            final ProxyConfig proxyConfig = gson.fromJson(reader, ProxyType);
-            proxyConfig.setGrpcServerPort(PortUtils.getProxyPort());
-            final FileWriter fileWriter = new FileWriter(configPath);
-            gson.toJson(proxyConfig, fileWriter);
-            fileWriter.close();
-
-
 
             if (null != mockProxyHome) {
                 System.setProperty(RMQ_PROXY_HOME, mockProxyHome);
             }
+
+            final String proxyConfigPath = System.getProperty("user.home") + File.separator + "rmq-proxy.json";
+            System.setProperty(CONFIG_PATH_PROPERTY, proxyConfigPath);
+
+            final Gson gson = new Gson();
+            Type ProxyType = new TypeToken<ProxyConfig>() {}.getType();
+            JsonReader reader = new JsonReader(new FileReader(proxyConfigPath));
+            final ProxyConfig proxyConfig = gson.fromJson(reader, ProxyType);
+            proxyConfig.setProxyMode("local");
+            proxyConfig.setGrpcServerPort(PortUtils.getProxyPort());
+            final FileWriter fileWriter = new FileWriter(proxyConfigPath);
+            gson.toJson(proxyConfig, fileWriter);
+            fileWriter.close();
 
             ConfigurationManager.initEnv();
             ConfigurationManager.intConfig();
