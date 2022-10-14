@@ -4,16 +4,21 @@ import static java.util.Collections.emptyMap;
 import static org.apache.rocketmq.proxy.config.ConfigurationManager.RMQ_PROXY_HOME;
 
 import apache.rocketmq.v2.MessagingServiceGrpc;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
 import io.grpc.Server;
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
-import io.opentelemetry.instrumentation.test.utils.PortUtils;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,6 +27,7 @@ import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.rocketmq.broker.BrokerController;
 import org.apache.rocketmq.common.BrokerConfig;
@@ -30,6 +36,7 @@ import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.logging.InternalLoggerFactory;
 import org.apache.rocketmq.namesrv.NamesrvController;
 import org.apache.rocketmq.proxy.config.ConfigurationManager;
+import org.apache.rocketmq.proxy.config.ProxyConfig;
 import org.apache.rocketmq.proxy.grpc.interceptor.ContextInterceptor;
 import org.apache.rocketmq.proxy.grpc.interceptor.HeaderInterceptor;
 import org.apache.rocketmq.proxy.grpc.v2.GrpcMessagingApplication;
@@ -89,7 +96,7 @@ public class IntegrationTestBase {
 
         // find 3 consecutive open ports and use the last one of them
         // rocketmq will also bind to given port - 2
-        nameServerNettyServerConfig.setListenPort(9876);
+        nameServerNettyServerConfig.setListenPort(PortUtils.getNamesrvPort());
         NamesrvController namesrvController =
             new NamesrvController(namesrvConfig, nameServerNettyServerConfig);
         try {
@@ -145,8 +152,8 @@ public class IntegrationTestBase {
         MessageStoreConfig storeConfig, BrokerConfig brokerConfig) {
         NettyServerConfig nettyServerConfig = new NettyServerConfig();
         NettyClientConfig nettyClientConfig = new NettyClientConfig();
-        nettyServerConfig.setListenPort(10911);
-        storeConfig.setHaListenPort(10910);
+        nettyServerConfig.setListenPort(PortUtils.getBrokerPort());
+        storeConfig.setHaListenPort(PortUtils.getBrokerHAServicePort());
         BrokerController brokerController =
             new BrokerController(brokerConfig, nettyServerConfig, nettyClientConfig, storeConfig);
         try {
@@ -171,6 +178,17 @@ public class IntegrationTestBase {
             if (mockProxyHomeURL != null) {
                 mockProxyHome = mockProxyHomeURL.toURI().getPath();
             }
+            final String configPath = mockProxyHomeURL.getPath() + "/conf/rmq-proxy.json";
+            final Gson gson = new Gson();
+            Type ProxyType = new TypeToken<ProxyConfig>() {}.getType();
+            JsonReader reader = new JsonReader(new FileReader(configPath));
+            final ProxyConfig proxyConfig = gson.fromJson(reader, ProxyType);
+            proxyConfig.setGrpcServerPort(PortUtils.getProxyPort());
+            final FileWriter fileWriter = new FileWriter(configPath);
+            gson.toJson(proxyConfig, fileWriter);
+            fileWriter.close();
+
+
 
             if (null != mockProxyHome) {
                 System.setProperty(RMQ_PROXY_HOME, mockProxyHome);
