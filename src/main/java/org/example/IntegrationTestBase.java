@@ -41,7 +41,7 @@ import org.apache.rocketmq.store.config.MessageStoreConfig;
 import org.junit.Assert;
 
 
-public final class IntegrationTestBase {
+public class IntegrationTestBase {
     public static final InternalLogger logger =
         InternalLoggerFactory.getLogger(IntegrationTestBase.class);
 
@@ -52,6 +52,8 @@ public final class IntegrationTestBase {
     static final List<NamesrvController> NAMESRV_CONTROLLERS = new ArrayList<>();
     static final int COMMIT_LOG_SIZE = 1024 * 1024 * 100;
     static final int INDEX_NUM = 1000;
+
+    //    public final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
 
     private static String createTempDir() {
         String path = null;
@@ -119,6 +121,26 @@ public final class IntegrationTestBase {
         return createAndStartBroker(storeConfig, brokerConfig);
     }
 
+    protected static void setUpServer(MessagingServiceGrpc.MessagingServiceImplBase serverImpl,
+        int port, boolean enableInterceptor) throws IOException, CertificateException {
+        SelfSignedCertificate selfSignedCertificate = new SelfSignedCertificate();
+        ServerServiceDefinition serviceDefinition = ServerInterceptors.intercept(serverImpl);
+        if (enableInterceptor) {
+            serviceDefinition = ServerInterceptors.intercept(serverImpl, new ContextInterceptor(), new HeaderInterceptor());
+        }
+        Server server = NettyServerBuilder.forPort(port)
+            .directExecutor()
+            .addService(serviceDefinition)
+            .useTransportSecurity(selfSignedCertificate.certificate(), selfSignedCertificate.privateKey())
+            .build()
+            .start();
+        final int port1 = server.getPort();
+        // Create a server, add service, start, and register for automatic graceful shutdown.
+        //        grpcCleanup.register(server);
+
+        ConfigurationManager.getProxyConfig().setGrpcServerPort(port1);
+    }
+
     public static BrokerController createAndStartBroker(
         MessageStoreConfig storeConfig, BrokerConfig brokerConfig) {
         NettyServerConfig nettyServerConfig = new NettyServerConfig();
@@ -134,6 +156,32 @@ public final class IntegrationTestBase {
                 brokerConfig.getBrokerName(),
                 brokerController.getBrokerAddr());
             brokerController.start();
+            System.out.println("Broker Start name:" + brokerConfig.getBrokerName());
+
+            String mockProxyHome = "/mock/rmq/proxy/home";
+            URL mockProxyHomeURL = IntegrationTestBase.class.getClassLoader().getResource("rmq-proxy-home");
+            if (mockProxyHomeURL != null) {
+                mockProxyHome = mockProxyHomeURL.toURI().getPath();
+            }
+
+            if (null != mockProxyHome) {
+                System.setProperty(RMQ_PROXY_HOME, mockProxyHome);
+            }
+
+            ConfigurationManager.initEnv();
+            ConfigurationManager.intConfig();
+            ConfigurationManager.getProxyConfig().setNamesrvAddr(brokerConfig.getNamesrvAddr());
+            // Set LongPollingReserveTimeInMillis to 500ms to reserve more time for IT
+            ConfigurationManager.getProxyConfig().setLongPollingReserveTimeInMillis(500);
+            ConfigurationManager.getProxyConfig().setRocketMQClusterName(brokerController.getBrokerConfig().getBrokerClusterName());
+            ConfigurationManager.getProxyConfig().setMinInvisibleTimeMillsForRecv(3);
+
+            MessagingProcessor messagingProcessor = DefaultMessagingProcessor.createForLocalMode(brokerController);
+            messagingProcessor.start();
+            GrpcMessagingApplication grpcMessagingApplication = GrpcMessagingApplication.create(messagingProcessor);
+            grpcMessagingApplication.start();
+            setUpServer(grpcMessagingApplication, ConfigurationManager.getProxyConfig().getGrpcServerPort(), true);
+            System.out.println("Proxy start");
         } catch (Throwable t) {
             logger.error("Broker start failed", t);
             throw new IllegalStateException("Broker start failed", t);
@@ -172,4 +220,3 @@ public final class IntegrationTestBase {
 
     private IntegrationTestBase() {}
 }
-
