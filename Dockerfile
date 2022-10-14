@@ -6,6 +6,6 @@ LABEL MAINTAINER="aiyangkun"
 RUN apt-get update && \
     apt-get install -y openjdk-8-jdk;
 
-COPY /Users/aiyangkun/Dev/repo/rocketmq-it/target/rocketmq-proxy-it.jar ~/rocketmq-proxy-it.jar
+COPY target/rocketmq-proxy-it.jar ~/rocketmq-proxy-it.jar
 
 CMD ["java", "-jar", "~/rocketmq-proxy-it.jar"]
