@@ -41,6 +41,17 @@ public class Main {
 
     public static void main(String[] args) {
         final Main main = new Main();
-        IntegrationTestBase.initTopic("aa", main.nsAddr, main.clusterName);
+        IntegrationTestBase.initTopic("normal-topic-0", main.nsAddr, main.clusterName);
+        IntegrationTestBase.initTopic("normal-topic-1", main.nsAddr, main.clusterName);
+        IntegrationTestBase.initTopic("normal-topic-2", main.nsAddr, main.clusterName);
+        IntegrationTestBase.initTopic("fifo-topic-0", main.nsAddr, main.clusterName);
+        IntegrationTestBase.initTopic("fifo-topic-1", main.nsAddr, main.clusterName);
+        IntegrationTestBase.initTopic("fifo-topic-2", main.nsAddr, main.clusterName);
+        IntegrationTestBase.initTopic("delay-topic-0", main.nsAddr, main.clusterName);
+        IntegrationTestBase.initTopic("delay-topic-1", main.nsAddr, main.clusterName);
+        IntegrationTestBase.initTopic("delay-topic-2", main.nsAddr, main.clusterName);
+        IntegrationTestBase.initTopic("transaction-topic-0", main.nsAddr, main.clusterName);
+        IntegrationTestBase.initTopic("transaction-topic-1", main.nsAddr, main.clusterName);
+        IntegrationTestBase.initTopic("transaction-topic-2", main.nsAddr, main.clusterName);
     }
 }
