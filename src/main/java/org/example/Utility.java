@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -29,16 +28,13 @@ import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.broker.BrokerController;
 import org.apache.rocketmq.common.BrokerConfig;
 import org.apache.rocketmq.common.namesrv.NamesrvConfig;
 import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.logging.InternalLoggerFactory;
 import org.apache.rocketmq.namesrv.NamesrvController;
-import org.apache.rocketmq.proxy.config.Configuration;
 import org.apache.rocketmq.proxy.config.ConfigurationManager;
 import org.apache.rocketmq.proxy.config.ProxyConfig;
 import org.apache.rocketmq.proxy.grpc.interceptor.ContextInterceptor;
@@ -51,10 +47,9 @@ import org.apache.rocketmq.remoting.netty.NettyServerConfig;
 import org.apache.rocketmq.store.config.MessageStoreConfig;
 import org.junit.Assert;
 
-
-public class IntegrationTestBase {
+public class Utility {
     public static final InternalLogger logger =
-        InternalLoggerFactory.getLogger(IntegrationTestBase.class);
+        InternalLoggerFactory.getLogger(Utility.class);
 
     static final String BROKER_NAME_PREFIX = "TestBrokerName_";
     static final AtomicInteger BROKER_INDEX = new AtomicInteger(0);
@@ -178,7 +173,7 @@ public class IntegrationTestBase {
     public static MessagingProcessor createAndStartMessagingProcessor(BrokerController brokerController) {
         try {
             String mockProxyHome = "/mock/rmq/proxy/home";
-            URL mockProxyHomeURL = IntegrationTestBase.class.getClassLoader().getResource("rmq-proxy-home");
+            URL mockProxyHomeURL = Utility.class.getClassLoader().getResource("rmq-proxy-home");
             if (mockProxyHomeURL != null) {
                 mockProxyHome = mockProxyHomeURL.toURI().getPath();
             }
@@ -258,5 +253,5 @@ public class IntegrationTestBase {
         }
     }
 
-    private IntegrationTestBase() {}
+    private Utility() {}
 }

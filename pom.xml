@@ -76,7 +76,7 @@
                             <appendAssemblyId>false</appendAssemblyId>
                             <archive>
                                 <manifest>
-                                    <mainClass>org.example.Main</mainClass>
+                                    <mainClass>org.example.ServerStartup</mainClass>
                                 </manifest>
                             </archive>
                         </configuration>
