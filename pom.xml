@@ -23,24 +23,6 @@
         </dependency>
 
         <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty-shaded</artifactId>
-            <version>1.45.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-protobuf</artifactId>
-            <version>1.45.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-stub</artifactId>
-            <version>1.45.0</version>
-        </dependency>
-
-        <dependency>
             <groupId>io.opentelemetry.javaagent</groupId>
             <artifactId>opentelemetry-testing-common</artifactId>
             <version>1.18.0-alpha</version>
@@ -48,14 +30,6 @@
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>rmq-proxy-home/conf/rmq-proxy.json</include>
-                </includes>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -63,7 +37,7 @@
                 <version>${maven-assembly-plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>consumer-benchmark</id>
+                        <id>server-startup</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
