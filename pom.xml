@@ -22,6 +22,22 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-client-java-noshade</artifactId>
+            <version>5.0.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.grpc</groupId>
+                    <artifactId>grpc-services</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.grpc</groupId>
+                    <artifactId>grpc-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
             <groupId>io.opentelemetry.javaagent</groupId>
             <artifactId>opentelemetry-testing-common</artifactId>
             <version>1.18.0-alpha</version>
