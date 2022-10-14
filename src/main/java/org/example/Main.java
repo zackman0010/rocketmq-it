@@ -19,6 +19,7 @@ public class Main {
         namesrvController = IntegrationTestBase.createAndStartNamesrv();
         nsAddr = "localhost:" + namesrvController.getNettyServerConfig().getListenPort();
         brokerController = IntegrationTestBase.createAndStartBroker(nsAddr);
+        IntegrationTestBase.createAndStartProxy(brokerController);
         clusterName = brokerController.getBrokerConfig().getBrokerClusterName();
         broker1Name = brokerController.getBrokerConfig().getBrokerName();
         broker1Addr = "localhost:" + brokerController.getNettyServerConfig().getListenPort();

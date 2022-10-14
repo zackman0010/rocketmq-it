@@ -156,8 +156,16 @@ public class IntegrationTestBase {
                 brokerConfig.getBrokerName(),
                 brokerController.getBrokerAddr());
             brokerController.start();
-            System.out.println("Broker Start name:" + brokerConfig.getBrokerName());
+        } catch (Throwable t) {
+            logger.error("Broker start failed", t);
+            throw new IllegalStateException("Broker start failed", t);
+        }
+        BROKER_CONTROLLERS.add(brokerController);
+        return brokerController;
+    }
 
+    public static void createAndStartProxy(BrokerController brokerController) {
+        try {
             String mockProxyHome = "/mock/rmq/proxy/home";
             URL mockProxyHomeURL = IntegrationTestBase.class.getClassLoader().getResource("rmq-proxy-home");
             if (mockProxyHomeURL != null) {
@@ -170,10 +178,11 @@ public class IntegrationTestBase {
 
             ConfigurationManager.initEnv();
             ConfigurationManager.intConfig();
+            final BrokerConfig brokerConfig = brokerController.getBrokerConfig();
             ConfigurationManager.getProxyConfig().setNamesrvAddr(brokerConfig.getNamesrvAddr());
             // Set LongPollingReserveTimeInMillis to 500ms to reserve more time for IT
             ConfigurationManager.getProxyConfig().setLongPollingReserveTimeInMillis(500);
-            ConfigurationManager.getProxyConfig().setRocketMQClusterName(brokerController.getBrokerConfig().getBrokerClusterName());
+            ConfigurationManager.getProxyConfig().setRocketMQClusterName(brokerConfig.getBrokerClusterName());
             ConfigurationManager.getProxyConfig().setMinInvisibleTimeMillsForRecv(3);
 
             MessagingProcessor messagingProcessor = DefaultMessagingProcessor.createForLocalMode(brokerController);
@@ -181,13 +190,10 @@ public class IntegrationTestBase {
             GrpcMessagingApplication grpcMessagingApplication = GrpcMessagingApplication.create(messagingProcessor);
             grpcMessagingApplication.start();
             setUpServer(grpcMessagingApplication, ConfigurationManager.getProxyConfig().getGrpcServerPort(), true);
-            System.out.println("Proxy start");
         } catch (Throwable t) {
-            logger.error("Broker start failed", t);
-            throw new IllegalStateException("Broker start failed", t);
+            logger.error("Proxy start failed", t);
+            throw new IllegalStateException("Proxy start failed", t);
         }
-        BROKER_CONTROLLERS.add(brokerController);
-        return brokerController;
     }
 
     public static void initTopic(String topic, String nsAddr, String clusterName) {
