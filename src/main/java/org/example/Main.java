@@ -39,10 +39,8 @@ public class Main {
         namesrvController.shutdown();
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         final Main main = new Main();
         IntegrationTestBase.initTopic("aa", main.nsAddr, main.clusterName);
-        //        main.shutdown();
-        //        System.out.println("done");
     }
 }

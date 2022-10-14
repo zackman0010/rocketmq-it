@@ -89,7 +89,7 @@ public class IntegrationTestBase {
 
         // find 3 consecutive open ports and use the last one of them
         // rocketmq will also bind to given port - 2
-        nameServerNettyServerConfig.setListenPort(PortUtils.findOpenPorts(3) + 2);
+        nameServerNettyServerConfig.setListenPort(9876);
         NamesrvController namesrvController =
             new NamesrvController(namesrvConfig, nameServerNettyServerConfig);
         try {
@@ -145,8 +145,8 @@ public class IntegrationTestBase {
         MessageStoreConfig storeConfig, BrokerConfig brokerConfig) {
         NettyServerConfig nettyServerConfig = new NettyServerConfig();
         NettyClientConfig nettyClientConfig = new NettyClientConfig();
-        nettyServerConfig.setListenPort(PortUtils.findOpenPort());
-        storeConfig.setHaListenPort(PortUtils.findOpenPort());
+        nettyServerConfig.setListenPort(10911);
+        storeConfig.setHaListenPort(10910);
         BrokerController brokerController =
             new BrokerController(brokerConfig, nettyServerConfig, nettyClientConfig, storeConfig);
         try {
