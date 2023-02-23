@@ -226,6 +226,10 @@ public class Utility {
     }
 
     public static void initTopic(String topic, String nsAddr, String clusterName) {
+        initTopic(topic, nsAddr, clusterName, emptyMap());
+    }
+
+    public static void initTopic(String topic, String nsAddr, String clusterName, Map<String, String> attributes) {
         try {
             // RocketMQ 4.x
             Class<?> mqAdmin = Class.forName("org.apache.rocketmq.test.util.MQAdmin");
@@ -243,7 +247,7 @@ public class Utility {
                 Method createTopic =
                     mqAdmin.getMethod(
                         "createTopic", String.class, String.class, String.class, int.class, Map.class);
-                createTopic.invoke(null, nsAddr, clusterName, topic, 20, emptyMap());
+                createTopic.invoke(null, nsAddr, clusterName, topic, 20, attributes);
             } catch (ClassNotFoundException
                      | InvocationTargetException
                      | NoSuchMethodException
