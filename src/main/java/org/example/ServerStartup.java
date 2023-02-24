@@ -51,7 +51,7 @@ public class ServerStartup {
         Utility.initTopic("fifo-topic-1", serverStartup.nsAddr, serverStartup.clusterName, fifoAttr);
         Utility.initTopic("fifo-topic-2", serverStartup.nsAddr, serverStartup.clusterName, fifoAttr);
         final HashMap<String, String> delayAttr = new HashMap<>();
-        fifoAttr.put("+message.type", "DELAY");
+        delayAttr.put("+message.type", "DELAY");
         Utility.initTopic("delay-topic-0", serverStartup.nsAddr, serverStartup.clusterName, delayAttr);
         Utility.initTopic("delay-topic-1", serverStartup.nsAddr, serverStartup.clusterName, delayAttr);
         Utility.initTopic("delay-topic-2", serverStartup.nsAddr, serverStartup.clusterName, delayAttr);
