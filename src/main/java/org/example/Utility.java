@@ -189,6 +189,7 @@ public class Utility {
             Type ProxyType = new TypeToken<ProxyConfig>() {}.getType();
             JsonReader reader = new JsonReader(new FileReader(proxyConfigPath));
             final ProxyConfig proxyConfig = gson.fromJson(reader, ProxyType);
+            proxyConfig.setUseDelayLevel(false);
             proxyConfig.setProxyMode("local");
             proxyConfig.setGrpcServerPort(PortUtils.getProxyPort());
             final FileWriter fileWriter = new FileWriter(proxyConfigPath);
