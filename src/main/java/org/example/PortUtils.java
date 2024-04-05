@@ -1,7 +1,7 @@
 package org.example;
 
-public class PortUtils {
-    private PortUtils() {
+public class NetworkUtils {
+    private NetworkUtils() {
     }
 
     public static int getBrokerPort() {
@@ -34,5 +34,13 @@ public class PortUtils {
             port = "9876";
         }
         return Integer.parseInt(port);
+    }
+
+    public static String getServerIp() {
+        String ip = System.getenv("rocketmq.proxy.ip")
+        if (null == ip) {
+            ip = "127.0.0.1";
+        }
+        return ip;
     }
 }

@@ -95,7 +95,7 @@ public class Utility {
 
         // find 3 consecutive open ports and use the last one of them
         // rocketmq will also bind to given port - 2
-        nameServerNettyServerConfig.setListenPort(PortUtils.getNamesrvPort());
+        nameServerNettyServerConfig.setListenPort(NetworkUtils.getNamesrvPort());
         NamesrvController namesrvController =
             new NamesrvController(namesrvConfig, nameServerNettyServerConfig);
         try {
@@ -116,7 +116,7 @@ public class Utility {
         BrokerConfig brokerConfig = new BrokerConfig();
         MessageStoreConfig storeConfig = new MessageStoreConfig();
         brokerConfig.setBrokerName(BROKER_NAME_PREFIX + BROKER_INDEX.getAndIncrement());
-        brokerConfig.setBrokerIP1("127.0.0.1");
+        brokerConfig.setBrokerIP1(NetworkUtils.getServerIp());
         brokerConfig.setNamesrvAddr(nsAddr);
         brokerConfig.setEnablePropertyFilter(true);
         storeConfig.setStorePathRootDir(baseDir);
@@ -151,8 +151,8 @@ public class Utility {
         MessageStoreConfig storeConfig, BrokerConfig brokerConfig) {
         NettyServerConfig nettyServerConfig = new NettyServerConfig();
         NettyClientConfig nettyClientConfig = new NettyClientConfig();
-        nettyServerConfig.setListenPort(PortUtils.getBrokerPort());
-        storeConfig.setHaListenPort(PortUtils.getBrokerHAServicePort());
+        nettyServerConfig.setListenPort(NetworkUtils.getBrokerPort());
+        storeConfig.setHaListenPort(NetworkUtils.getBrokerHAServicePort());
         BrokerController brokerController =
             new BrokerController(brokerConfig, nettyServerConfig, nettyClientConfig, storeConfig);
         try {
@@ -191,7 +191,7 @@ public class Utility {
             final ProxyConfig proxyConfig = gson.fromJson(reader, ProxyType);
             proxyConfig.setUseDelayLevel(false);
             proxyConfig.setProxyMode("local");
-            proxyConfig.setGrpcServerPort(PortUtils.getProxyPort());
+            proxyConfig.setGrpcServerPort(NetworkUtils.getProxyPort());
             final FileWriter fileWriter = new FileWriter(proxyConfigPath);
             gson.toJson(proxyConfig, fileWriter);
             fileWriter.close();

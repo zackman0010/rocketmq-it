@@ -1,6 +1,7 @@
 FROM ubuntu:18.04
 
-LABEL MAINTAINER="aiyangkun"
+LABEL MAINTAINER="zackman0010"
+LABEL ORIGINAL_MAINTAINER = "aiyangkun"
 
 # Install OpenJDK-8
 RUN apt-get update && \
