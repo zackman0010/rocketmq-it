@@ -37,7 +37,7 @@ public class NetworkUtils {
     }
 
     public static String getServerIp() {
-        String ip = System.getenv("rocketmq.proxy.ip")
+        String ip = System.getenv("rocketmq.proxy.ip");
         if (null == ip) {
             ip = "127.0.0.1";
         }
