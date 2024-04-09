@@ -22,11 +22,7 @@
             <version>5.0.0</version>
         </dependency>
 
-        <dependency>
-            <groupId>io.opentelemetry.javaagent</groupId>
-            <artifactId>opentelemetry-testing-common</artifactId>
-            <version>1.18.0-alpha</version>
-        </dependency>
+
     </dependencies>
 
     <build>
