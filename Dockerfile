@@ -1,4 +1,4 @@
-FROM eclipse-temurin:8-alpine
+FROM eclipse-temurin:8
 
 LABEL MAINTAINER="zackman0010"
 LABEL ORIGINAL_MAINTAINER = "aiyangkun"
